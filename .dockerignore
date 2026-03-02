@@ -1,0 +1,34 @@
+# IDE
+.idea/
+*.iml
+*.iws
+.vscode/
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Build output
+target/
+**/target/
+
+# Config with secrets
+sentinel-config-repo/
+
+# Docker Volumes
+postgres_data/
+
+# Docker Files (Optional depending on build context usage, but often good to ignore from the daemon context)
+docker-compose.yml
+.dockerignore
+# Dockerfile
+
+# Docs
+*.md
+HELP.md
+
+# Env files (CRITICAL: Do not expose secrets to the docker image built context)
+*.env
+.env.*
+!.env.example

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <style>
+        .email-body {
+            font-family: Arial, sans-serif;
+            background-color: #0f172a;
+            padding: 40px 20px;
+        }
+
+        .alert-card {
+            background: #1e293b;
+            border-radius: 16px;
+            max-width: 520px;
+            margin: auto;
+            overflow: hidden;
+        }
+
+        .header {
+            padding: 24px 30px;
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 20px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .logo span {
+            color: #10b981;
+        }
+
+        .status-banner {
+            padding: 30px;
+            text-align: center;
+        }
+
+        .status-banner.down {
+            background: linear-gradient(135deg, #dc2626, #ef4444);
+        }
+
+        .status-banner.up {
+            background: linear-gradient(135deg, #10b981, #14b8a6);
+        }
+
+        .status-url {
+            font-size: 22px;
+            font-weight: bold;
+            color: white;
+            word-break: break-all;
+        }
+
+        .status-label {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 14px;
+            margin-top: 6px;
+        }
+
+        .content {
+            padding: 24px 30px;
+        }
+
+        .detail-row {
+            padding: 14px 0;
+            border-bottom: 1px solid #334155;
+        }
+
+        .detail-label {
+            color: #64748b;
+            text-transform: uppercase;
+            font-size: 10px;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        .detail-value {
+            color: #e2e8f0;
+            font-size: 14px;
+            font-weight: bold;
+            margin-top: 4px;
+        }
+
+        .btn-container {
+            text-align: center;
+            padding: 24px 30px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 14px 28px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 13px;
+            margin: 5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #10b981, #14b8a6);
+            color: white;
+        }
+
+        .btn-secondary {
+            border: 2px solid #10b981;
+            color: #10b981;
+            background: transparent;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 16px;
+            color: #475569;
+            font-size: 11px;
+            border-top: 1px solid #334155;
+        }
+    </style>
+</head>
+
+<body class="email-body">
+    <div class="alert-card">
+        <!-- Logo -->
+        <div class="header">
+            <div class="logo">🛡️ <span>Sentinel</span></div>
+        </div>
+
+        <!-- Status Banner -->
+        <div class="status-banner" th:classappend="${status == 'UP' ? 'up' : 'down'}">
+            <div class="status-url" th:text="${url}">website.com</div>
+            <div class="status-label">
+                <span th:if="${status == 'DOWN'}">⚠️ Monitor is DOWN</span>
+                <span th:if="${status == 'UP'}">✅ Monitor is back UP</span>
+            </div>
+        </div>
+
+        <!-- Details -->
+        <div class="content">
+            <div class="detail-row">
+                <div class="detail-label">Monitor Name</div>
+                <div class="detail-value" th:text="${url}">Name</div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Root Cause</div>
+                <div class="detail-value" th:text="${cause}">Connection Timeout</div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label" th:text="${status == 'UP' ? 'Resolved At' : 'Incident Started At'}">Time</div>
+                <div class="detail-value" th:text="${time}">2026-02-28</div>
+            </div>
+            <div class="detail-row" th:if="${duration != null}">
+                <div class="detail-label">Duration</div>
+                <div class="detail-value" th:text="${duration}">2 mins</div>
+            </div>
+        </div>
+
+        <!-- Action Buttons (with real links) -->
+        <div class="btn-container">
+            <a href="#" th:href="|${frontendUrl}/incidents/${siteId}|" class="btn btn-primary"
+                style="display:inline-block;padding:14px 28px;border-radius:12px;text-decoration:none;font-weight:bold;font-size:13px;margin:5px;background:linear-gradient(135deg,#10b981,#14b8a6);color:white;">
+                View incident details
+            </a>
+            <a href="#" th:href="|${frontendUrl}/incidents/${siteId}?comment=true|" class="btn btn-secondary"
+                style="display:inline-block;padding:14px 28px;border-radius:12px;text-decoration:none;font-weight:bold;font-size:13px;margin:5px;border:2px solid #10b981;color:#10b981;">
+                Comment incident
+            </a>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            Sentinel Monitoring • Bihar, India 🇮🇳<br />
+            You're receiving this because you monitor this URL with Sentinel.
+        </div>
+    </div>
+</body>
+
+</html>

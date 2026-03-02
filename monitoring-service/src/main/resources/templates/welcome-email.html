@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <style>
+        .email-body {
+            font-family: Arial, sans-serif;
+            background-color: #0f172a;
+            padding: 40px 20px;
+        }
+
+        .card {
+            background: #1e293b;
+            border-radius: 16px;
+            max-width: 520px;
+            margin: auto;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #10b981, #14b8a6);
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            color: white;
+            font-size: 28px;
+            margin: 0 0 8px;
+        }
+
+        .header p {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 14px;
+            margin: 0;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .logo span {
+            color: #10b981;
+        }
+
+        .content {
+            padding: 30px;
+            color: #cbd5e1;
+            line-height: 1.7;
+            font-size: 14px;
+        }
+
+        .feature-box {
+            background: #0f172a;
+            border-radius: 12px;
+            padding: 16px;
+            margin: 8px 0;
+        }
+
+        .feature-title {
+            color: #10b981;
+            font-weight: bold;
+            font-size: 13px;
+        }
+
+        .feature-desc {
+            color: #94a3b8;
+            font-size: 12px;
+            margin-top: 4px;
+        }
+
+        .btn-container {
+            text-align: center;
+            padding: 10px 30px 30px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 14px 32px;
+            background: linear-gradient(135deg, #10b981, #14b8a6);
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #475569;
+            font-size: 11px;
+            border-top: 1px solid #334155;
+        }
+    </style>
+</head>
+
+<body class="email-body">
+    <div class="card">
+        <div class="header">
+            <div class="logo">🛡️ <span>Sentinel</span></div>
+            <h1>Welcome Aboard! 🎉</h1>
+            <p>Your monitoring journey starts now</p>
+        </div>
+        <div class="content">
+            <p>Hi <strong th:text="${userName}" style="color: white;">there</strong>,</p>
+            <p>You've successfully logged into <strong style="color: white;">Sentinel Monitoring</strong>.
+                Here's what you can do:</p>
+
+            <div class="feature-box">
+                <div class="feature-title">📊 Real-Time Dashboard</div>
+                <div class="feature-desc">Monitor all your websites, APIs, and services in one place</div>
+            </div>
+            <div class="feature-box">
+                <div class="feature-title">🔔 Instant Alerts</div>
+                <div class="feature-desc">Get notified via email when your services go down</div>
+            </div>
+            <div class="feature-box">
+                <div class="feature-title">📈 Business Analytics</div>
+                <div class="feature-desc">Track uptime, response times, and incident history</div>
+            </div>
+            <div class="feature-box">
+                <div class="feature-title">🔒 7 Monitor Types</div>
+                <div class="feature-desc">HTTP, SSL, Keyword, Port, Ping, API, and DNS monitoring</div>
+            </div>
+        </div>
+        <div class="btn-container">
+            <a th:href="|${frontendUrl}/dashboard|" class="btn"
+                style="display:inline-block;padding:14px 32px;background:linear-gradient(135deg,#10b981,#14b8a6);color:white;text-decoration:none;border-radius:12px;font-weight:bold;font-size:14px;">Go
+                to Dashboard →</a>
+        </div>
+        <div class="footer">
+            Sentinel Monitoring • Bihar, India 🇮🇳<br />
+            You're receiving this because you signed up for Sentinel.
+        </div>
+    </div>
+</body>
+
+</html>

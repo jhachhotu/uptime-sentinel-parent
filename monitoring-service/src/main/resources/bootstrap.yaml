@@ -1,0 +1,52 @@
+server:
+  port: ${PORT:8082}
+
+spring:
+  application:
+    name: monitoring-service
+  config:
+    import: "optional:configserver:http://localhost:8888"
+
+  # --- EMAIL ---
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${SMTP_USERNAME:chhotusimaria@gmail.com}
+    password: ${SMTP_PASSWORD:rhcfdplaqozpvpta}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+  # --- DATABASE ---
+  datasource:
+    url: ${DATABASE_URL:jdbc:mysql://127.0.0.1:3306/uptime_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true}
+    username: ${DATABASE_USERNAME:root}
+    password: ${DATABASE_PASSWORD:Chhotu@851126}
+    driver-class-name: ${DATABASE_DRIVER:com.mysql.cj.jdbc.Driver}
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: ${HIBERNATE_DIALECT:org.hibernate.dialect.MySQLDialect}
+
+# --- SECURITY (Custom JWT) ---
+jwt:
+  secret: ${JWT_SECRET:8a42b1f8e12a0f8b8a42b1f8e12a0f8b8a42b1f8e12a0f8b8a42b1f8e12a0f8b}
+  expiration: ${JWT_EXPIRATION_MS:86400000} # 24 hours
+google:
+  client-id: ${GOOGLE_CLIENT_ID:1060072948697-j6li3s391ttc0k4fhpalqfbshl514kfl.apps.googleusercontent.com}
+
+eureka:
+  client:
+    enabled: ${EUREKA_ENABLED:true}
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    hostname: localhost
+    prefer-ip-address: true

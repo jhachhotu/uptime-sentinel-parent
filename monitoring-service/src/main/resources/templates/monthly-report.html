@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8f9fa; padding: 30px; }
+        .container { max-width: 600px; margin: auto; }
+        .header { text-align: center; margin-bottom: 30px; }
+        .card { background: #ffffff; border-radius: 12px; padding: 25px; margin-bottom: 25px;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-left: 6px solid #007bff; }
+        .url { color: #007bff; font-size: 20px; font-weight: bold; margin-bottom: 15px; }
+        .uptime-bar-container { background: #eee; height: 12px; border-radius: 6px; margin: 15px 0; overflow: hidden; }
+        .uptime-bar-fill { background: #28a745; height: 100%; border-radius: 6px; }
+        .metrics { display: flex; justify-content: space-between; border-top: 1px solid #eee; padding-top: 15px; }
+        .metric-item { text-align: center; flex: 1; }
+        .metric-value { display: block; font-size: 18px; font-weight: bold; color: #333; }
+        .metric-label { font-size: 12px; color: #777; text-transform: uppercase; }
+        .incident-red { color: #dc3545 !important; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>Sentinel Monthly Report</h1>
+        <p>Performance summary for the last 30 days</p>
+    </div>
+
+    <div th:each="card : ${reportCards}" class="card">
+        <div class="url" th:text="${card.url}">example.com</div>
+
+        <div class="uptime-bar-container">
+            <div class="uptime-bar-fill" th:style="'width: ' + ${card.uptimePercentage} + '%'"></div>
+        </div>
+
+        <div class="metrics">
+            <div class="metric-item">
+                <span class="metric-value" th:text="${card.uptimePercentage} + '%'">0%</span>
+                <span class="metric-label">Uptime</span>
+            </div>
+            <div class="metric-item">
+                <span class="metric-value" th:text="${card.avgResponseTime} + 'ms'">0ms</span>
+                <span class="metric-label">Avg Speed</span>
+            </div>
+            <div class="metric-item">
+                <span class="metric-value incident-red" th:text="${card.incidentCount}">0</span>
+                <span class="metric-label">Incidents</span>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
