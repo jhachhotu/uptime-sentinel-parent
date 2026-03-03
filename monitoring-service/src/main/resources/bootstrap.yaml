@@ -1,15 +1,5 @@
-server:
-  port: ${PORT}
-
 spring:
   application:
     name: monitoring-service
   config:
     import: optional:configserver:https://sentinel-config-latest.onrender.com
-
-eureka:
-  client:
-    service-url:
-      defaultZone: ${EUREKA_URL}
-  instance:
-    prefer-ip-address: true
