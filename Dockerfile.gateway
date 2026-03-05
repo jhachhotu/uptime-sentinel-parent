@@ -5,6 +5,6 @@ RUN mvn clean package -pl api-gateway -am -DskipTests
 
 FROM eclipse-temurin:21-jre-jammy
 WORKDIR /app
-COPY --from=build /app/api-gateway/target/*.jar app.jar
+COPY --from=build /app/api-gateway/target/api-gateway-*.jar app.jar
 
 ENTRYPOINT ["sh","-c","java -Xmx300m -Dserver.port=$PORT -jar app.jar"]
