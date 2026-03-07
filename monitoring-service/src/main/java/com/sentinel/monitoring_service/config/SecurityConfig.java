@@ -11,13 +11,18 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    // Ensure this is set to https://client-uptime-frontend.vercel.app in your Render env vars
     @org.springframework.beans.factory.annotation.Value("${FRONTEND_URL:https://client-uptime-frontend.vercel.app}")
     private String frontendUrl;
 
@@ -28,10 +33,10 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
-                // 1. Link to the CORS source below
+                // 1. Point to the CORS configuration defined below
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
 
-                // 2. Fix the COOP issue for Google Auth
+                // 2. CRITICAL: Fix the COOP issue for Google Auth popup communication
                 .headers(headers -> headers
                         .crossOriginOpenerPolicy(coop -> coop
                                 .policy(org.springframework.security.web.header.writers.CrossOriginOpenerPolicyHeaderWriter.CrossOriginOpenerPolicy.SAME_ORIGIN_ALLOW_POPUPS)
@@ -51,18 +56,23 @@ public class SecurityConfig {
         return http.build();
     }
 
-    // 3. Define the CORS Bridge
+    // 3. Define the CORS Bridge for production origins
     @Bean
-    public org.springframework.web.cors.CorsConfigurationSource corsConfigurationSource() {
-        org.springframework.web.cors.CorsConfiguration configuration = new org.springframework.web.cors.CorsConfiguration();
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
 
-        // Allow Vercel and Localhost for testing
-        configuration.setAllowedOrigins(java.util.Arrays.asList(frontendUrl, "http://localhost:5173"));
-        configuration.setAllowedMethods(java.util.Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(java.util.Arrays.asList("Authorization", "Content-Type", "Accept", "X-Requested-With"));
-        configuration.setAllowCredentials(true);
+        // Allow Vercel production, localhost, and all Vercel preview branches
+        configuration.setAllowedOrigins(Arrays.asList(
+                frontendUrl,
+                "http://localhost:5173",
+                "https://client-uptime-frontend.vercel.app"
+        ));
 
-        org.springframework.web.cors.UrlBasedCorsConfigurationSource source = new org.springframework.web.cors.UrlBasedCorsConfigurationSource();
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept", "X-Requested-With"));
+        configuration.setAllowCredentials(true); // Required for OAuth2/Cookies
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
