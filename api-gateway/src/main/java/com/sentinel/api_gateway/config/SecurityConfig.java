@@ -19,38 +19,36 @@ import java.util.Arrays;
 @EnableWebFluxSecurity
 public class SecurityConfig {
 
-    @Bean
-    public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
-        return http
-                .csrf(ServerHttpSecurity.CsrfSpec::disable)
+        @Bean
+        public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
+                return http
+                                .csrf(ServerHttpSecurity.CsrfSpec::disable)
 
-                // 1. FIXED: Correct path for Reactive COOP policy
-                .headers(headers -> headers
-                        .crossOriginOpenerPolicy(coop -> coop
-                                .policy(CrossOriginOpenerPolicy.SAME_ORIGIN_ALLOW_POPUPS)
-                        )
-                )
+                                // 1. FIXED: Correct path for Reactive COOP policy
+                                .headers(headers -> headers
+                                                .crossOriginOpenerPolicy(coop -> coop
+                                                                .policy(CrossOriginOpenerPolicy.SAME_ORIGIN_ALLOW_POPUPS)))
 
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
 
-                .authorizeExchange(exchanges -> exchanges
-                        .pathMatchers("/api/monitoring/auth/**", "/login/**", "/oauth2/**", "/public/**").permitAll()
-                        .anyExchange().authenticated()
-                )
-                .oauth2Login(Customizer.withDefaults())
-                .build();
-    }
+                                .authorizeExchange(exchanges -> exchanges
+                                                .pathMatchers("/api/monitoring/auth/**", "/login/**", "/oauth2/**",
+                                                                "/public/**")
+                                                .permitAll()
+                                                .anyExchange().authenticated())
+                                .build();
+        }
 
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(Arrays.asList("https://client-uptime-frontend.vercel.app", "http://localhost:5173"));
-        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        config.setAllowedHeaders(Arrays.asList("*"));
-        config.setAllowCredentials(true);
+        @Bean
+        public CorsConfigurationSource corsConfigurationSource() {
+                CorsConfiguration config = new CorsConfiguration();
+                config.setAllowedOrigins(Arrays.asList("https://client-uptime-frontend.vercel.app"));
+                config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                config.setAllowedHeaders(Arrays.asList("*"));
+                config.setAllowCredentials(true);
 
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", config);
-        return source;
-    }
+                UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+                source.registerCorsConfiguration("/**", config);
+                return source;
+        }
 }
