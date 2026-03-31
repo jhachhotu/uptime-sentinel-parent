@@ -30,7 +30,7 @@ public class AuthService {
     private final JwtUtil jwtUtil;
     private final AuthenticationManager authenticationManager;
 
-    @Value("${google.client-id}")
+    @Value("${google.client-id:dummyClientId}")
     private String googleClientId;
 
     public AuthResponse register(RegisterRequest request) {

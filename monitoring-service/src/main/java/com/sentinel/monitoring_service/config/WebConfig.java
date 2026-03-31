@@ -9,6 +9,11 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        // CORS is handled globally by the API Gateway
+
+        registry.addMapping("/**")
+                .allowedOrigins("https://client-uptime-frontend.vercel.app")
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                .allowedHeaders("*")
+                .allowCredentials(true);
     }
 }

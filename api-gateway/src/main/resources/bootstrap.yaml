@@ -1,16 +1,5 @@
-server:
-  port: ${PORT:8081}
-
 spring:
   application:
     name: api-gateway
   config:
-    import: optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888}
-
-eureka:
-  client:
-    service-url:
-      defaultZone: ${EUREKA_URL:http://localhost:8761/eureka/}
-
-  instance:
-    prefer-ip-address: true
+    import: optional:configserver:https://sentinel-config-latest.onrender.com

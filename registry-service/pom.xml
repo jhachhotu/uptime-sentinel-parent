@@ -6,7 +6,7 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <!-- ✅ USE MAIN PARENT (VERY IMPORTANT) -->
+    <!-- Parent -->
     <parent>
         <groupId>com.sentinel</groupId>
         <artifactId>uptime-sentinel-parent</artifactId>
@@ -19,7 +19,7 @@
 
     <dependencies>
 
-        <!-- Required for Eureka dashboard -->
+        <!-- Spring Web -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -37,7 +37,7 @@
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
 
-        <!-- Tests -->
+        <!-- Test -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
@@ -45,5 +45,15 @@
         </dependency>
 
     </dependencies>
+
+    <!-- IMPORTANT: Makes JAR executable -->
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>
