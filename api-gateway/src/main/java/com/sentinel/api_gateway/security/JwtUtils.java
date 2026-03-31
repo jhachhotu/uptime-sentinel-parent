@@ -17,7 +17,7 @@ import java.util.Map;
 @Component
 public class JwtUtils {
 
-    @Value("${JWT_SECRET}")
+    @Value("${JWT_SECRET:defaultSecretKeyForTestingPurposeOnlyButMakeItLongEnoughForHS256Algorithm}")
     private String secret;
 
     public String generateToken(Authentication authentication) {
