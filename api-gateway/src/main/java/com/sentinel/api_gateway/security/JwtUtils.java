@@ -1,45 +1,56 @@
 package com.sentinel.api_gateway.security;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
+/**
+ * JWT utility for the API Gateway.
+ * The gateway currently acts as a transparent proxy (all auth is handled by monitoring-service).
+ * This class is retained for potential future use (e.g., gateway-level route protection).
+ */
 @Component
 public class JwtUtils {
 
-    @Value("${JWT_SECRET:defaultSecretKeyForTestingPurposeOnlyButMakeItLongEnoughForHS256Algorithm}")
-    private String secret;
+    private final Key key;
 
-    public String generateToken(Authentication authentication) {
-        OAuth2User user = (OAuth2User) authentication.getPrincipal();
+    public JwtUtils(@Value("${JWT_SECRET:defaultSecretKeyForTestingPurposeOnlyButMakeItLongEnoughForHS256Algorithm}") String secret) {
+        this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+    }
 
-        // 1. Fix: Safely extract only serializable attributes
-        Map<String, Object> claims = new HashMap<>();
-        claims.put("email", user.getAttribute("email"));
-        claims.put("name", user.getAttribute("name"));
-        claims.put("picture", user.getAttribute("picture"));
-        claims.put("sub", user.getAttribute("sub"));
+    /**
+     * Validates a JWT token and returns the email (subject) if valid.
+     */
+    public String validateTokenAndGetEmail(String token) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
 
-        // 2. Fix: Use Keys.hmacShaKeyFor with a specific byte array
-        Key key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+        // Check expiration
+        if (claims.getExpiration().before(new Date())) {
+            throw new RuntimeException("Token expired");
+        }
 
-        return Jwts.builder()
-                .setClaims(claims)
-                .setSubject(user.getAttribute("email"))
-                .setIssuedAt(new Date())
-                // Expiration: 24 Hours
-                .setExpiration(new Date(System.currentTimeMillis() + 86400000))
-                .signWith(key, SignatureAlgorithm.HS256)
-                .compact();
+        return claims.getSubject();
+    }
+
+    /**
+     * Checks if a token is valid (non-expired, correctly signed).
+     */
+    public boolean isTokenValid(String token) {
+        try {
+            validateTokenAndGetEmail(token);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 }

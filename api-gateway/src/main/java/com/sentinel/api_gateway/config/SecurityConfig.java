@@ -32,18 +32,21 @@ public class SecurityConfig {
                                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
 
                                 .authorizeExchange(exchanges -> exchanges
-                                                .pathMatchers("/api/monitoring/auth/**", "/login/**", "/oauth2/**",
-                                                                "/public/**")
-                                                .permitAll()
-                                                .anyExchange().authenticated())
+                                                .anyExchange().permitAll())
                                 .build();
         }
 
         @Bean
         public CorsConfigurationSource corsConfigurationSource() {
                 CorsConfiguration config = new CorsConfiguration();
-                config.setAllowedOrigins(Arrays.asList("https://client-uptime-frontend.vercel.app"));
-                config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                config.setAllowedOrigins(Arrays.asList(
+                        "https://client-uptime-frontend.vercel.app",
+                        "http://localhost:5173",
+                        "http://localhost:8080",
+                        "http://localhost:8082"
+                ));
+                config.setAllowedOriginPatterns(Arrays.asList("https://*.vercel.app"));
+                config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
                 config.setAllowedHeaders(Arrays.asList("*"));
                 config.setAllowCredentials(true);
 

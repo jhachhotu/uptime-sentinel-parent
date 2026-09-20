@@ -56,19 +56,24 @@ public class SecurityConfig {
         return http.build();
     }
 
-    // 3. Define the CORS Bridge for production origins
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        // Allow Vercel production, localhost, and all Vercel preview branches
+        // Exact origins
         configuration.setAllowedOrigins(Arrays.asList(
                 frontendUrl,
                 "http://localhost:5173",
+                "http://localhost:8082",
                 "https://client-uptime-frontend.vercel.app"
         ));
 
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        // Also allow all Vercel preview deployments via pattern
+        configuration.setAllowedOriginPatterns(Arrays.asList(
+                "https://*.vercel.app"
+        ));
+
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept", "X-Requested-With"));
         configuration.setAllowCredentials(true); // Required for OAuth2/Cookies
 
