@@ -1,517 +1,355 @@
-# 🚀 Uptime Monitoring System
+# 🚀 Uptime Sentinel
 
-A production-ready **Uptime Monitoring Platform** built using **Spring Boot Microservices Architecture**, designed to monitor the health and availability of web applications, APIs, and services. The system provides centralized configuration, service discovery, API gateway routing, secure authentication, and real-time monitoring in a scalable cloud-native architecture.
+A cloud-ready **Uptime Monitoring and Incident Reporting Platform** built with **Spring Boot Microservices**, designed to monitor websites and APIs, detect downtime, and allow users to report incidents with screenshot evidence.
+
+The platform combines a **Spring Cloud microservices architecture** with **AWS S3 and AWS Lambda** for serverless evidence processing.
 
 ---
 
 ## 📌 Overview
 
-The project follows a **Microservices Architecture** where each service is independently deployable, scalable, and maintainable.
+Uptime Sentinel provides centralized monitoring, authentication, service discovery, configuration management, and incident reporting.
 
-It leverages the Spring Cloud ecosystem to provide:
+The system allows users to:
 
-- Service Discovery
-- Centralized Configuration
-- API Gateway
-- OAuth2 & JWT Authentication
-- Health Monitoring
-- Dockerized Deployment
-- RESTful APIs
-- Secure Communication
+- Monitor websites and APIs
+- Track uptime and response times
+- Detect service failures
+- Report incidents and downtime
+- Attach screenshot/image evidence to incidents
+- Store evidence securely in Amazon S3
+- Process incident evidence using AWS Lambda
+- Track Lambda execution status
+- Manage reported issues through REST APIs
 
 ---
 
 # 🏗️ Architecture
 
 ```text
-                   +----------------------+
-                   |      Client/App      |
-                   +----------+-----------+
-                              |
-                              |
-                    API Gateway (Spring Cloud Gateway)
-                              |
-        -------------------------------------------------
-        |                     |                         |
-        |                     |                         |
- Registry Service      Monitoring Service      Future Services
- (Eureka Server)         (Business Logic)
-        |
- Config Server
-        |
-  Git Configuration Repository
+                         ┌─────────────────────┐
+                         │    Client / React   │
+                         └──────────┬──────────┘
+                                    │
+                                    ▼
+                         ┌─────────────────────┐
+                         │    API Gateway      │
+                         │ Spring Cloud        │
+                         │ Gateway              │
+                         └──────────┬──────────┘
+                                    │
+                       JWT / OAuth2 Authentication
+                                    │
+             ┌──────────────────────┼──────────────────────┐
+             │                      │                      │
+             ▼                      ▼                      ▼
+     ┌──────────────┐      ┌────────────────┐      Future Services
+     │ Eureka       │      │ Monitoring     │
+     │ Registry     │      │ Service        │
+     └──────────────┘      └───────┬────────┘
+                                    │
+                          ┌─────────┴──────────┐
+                          │                    │
+                          ▼                    ▼
+                   ┌─────────────┐      ┌─────────────┐
+                   │ PostgreSQL  │      │   AWS S3    │
+                   │             │      │ Issue Proof │
+                   └─────────────┘      │   Images    │
+                                        └──────┬──────┘
+                                               │
+                                        ObjectCreated /
+                                        Lambda Invocation
+                                               │
+                                               ▼
+                                        ┌─────────────┐
+                                        │ AWS Lambda  │
+                                        │ Node.js 20  │
+                                        └─────────────┘
 
+              ┌─────────────────────┐
+              │ Spring Cloud Config │
+              │       Server        │
+              └─────────────────────┘
+
+              ┌─────────────────────┐
+              │    Cloud / AWS      │
+              │ Serverless Services │
+              └─────────────────────┘
 ```
 
 ---
 
-# ✨ Features
+# ✨ Core Features
 
-## 🔐 Security
+## 🔐 Authentication & Security
 
-- OAuth2 Authentication
-- JWT Token-based Authorization
-- Role-Based Access Control (RBAC)
+- OAuth2 authentication
+- JWT-based authorization
+- Role-based access control
+- Stateless authentication
 - Secure REST APIs
-- Password Encryption
+- Password encryption
+- CORS configuration
 
 ---
 
 ## 🌐 API Gateway
 
-- Centralized API Routing
-- Authentication Filter
-- Request Validation
-- Load Balancing
-- Global Exception Handling
+Spring Cloud Gateway acts as the centralized entry point.
+
+Responsibilities include:
+
+- Request routing
+- JWT validation
+- Authentication filtering
+- Service discovery integration
+- Global exception handling
+- CORS configuration
+- Load balancing
 
 ---
 
-## ⚙️ Service Discovery
+## 🔎 Service Discovery
 
-- Netflix Eureka Server
-- Automatic Service Registration
-- Dynamic Service Discovery
-- Fault Tolerance
+The project uses **Netflix Eureka** for service discovery.
 
----
+Features:
 
-## 📦 Configuration Management
-
-- Spring Cloud Config Server
-- Externalized Configuration
-- Environment-Based Configurations
-- Centralized Property Management
+- Automatic service registration
+- Dynamic service discovery
+- Health monitoring
+- Service-to-service communication
+- Reduced dependency on hardcoded service URLs
 
 ---
 
-## 📊 Monitoring Service
+## ⚙️ Centralized Configuration
 
-- Website Uptime Monitoring
-- API Health Checks
-- Status Tracking
-- Scheduled Monitoring
-- Failure Detection
-- Response Time Monitoring
-- Availability Reporting
+The **Spring Cloud Config Server** provides centralized configuration management.
 
----
+Features:
 
-## 🐳 Docker Support
-
-- Dockerized Microservices
-- Docker Compose
-- Easy Deployment
-- Multi-container Architecture
+- Externalized configuration
+- Environment-specific configuration
+- Centralized properties
+- Remote configuration management
 
 ---
 
-## ⚡ Scalable Architecture
+# 📊 Monitoring Service
 
-- Independent Services
-- Loose Coupling
-- Easy Scaling
-- Cloud Ready
-- Production Ready
+The Monitoring Service contains the core uptime-monitoring business logic.
 
----
+### Monitoring capabilities
 
-# 🛠️ Tech Stack
+- Website uptime monitoring
+- API health checks
+- Scheduled monitoring
+- Failure detection
+- Response-time tracking
+- Availability tracking
+- Monitor status management
+- Monitoring reports
 
-| Category | Technology |
-|----------|------------|
-| Language | Java 21 |
-| Framework | Spring Boot 3 |
-| Security | Spring Security |
-| Authentication | OAuth2 + JWT |
-| API Gateway | Spring Cloud Gateway |
-| Service Discovery | Netflix Eureka |
-| Configuration | Spring Cloud Config |
-| Monitoring | Spring Boot Actuator |
-| Build Tool | Maven |
-| Database | PostgreSQL / MySQL |
-| Containerization | Docker |
-| Orchestration | Docker Compose |
+The service periodically checks configured endpoints and records their health and response information.
 
 ---
 
-# 📂 Project Structure
+# 🚨 Issue & Incident Reporting
 
-```
-uptime-monitoring/
+Uptime Sentinel also includes an incident reporting workflow that allows users to report problems detected during monitoring.
 
-│
-├── api-gateway/
-│
-├── config-server/
-│
-├── registry-service/
-│
-├── monitoring-service/
-│
-├── common/
-│
-├── docker-compose.yml
-│
-├── Dockerfile
-│
-├── Dockerfile.gateway
-│
-├── Dockerfile.config
-│
-├── Dockerfile.monitoring
-│
-├── Dockerfile.registry
-│
-├── .env.example
-│
-└── README.md
-```
+Users can create issue tickets containing:
+
+- Issue title
+- Description
+- Category
+- Priority
+- Related website/monitor
+- Screenshot/image proof
+- User information
+- Issue status
+- AWS S3 storage information
+- AWS Lambda execution information
+- Creation and update timestamps
 
 ---
 
-# 🏢 Microservices
+# ☁️ AWS S3 Integration
 
-## 📌 API Gateway
+Incident screenshot evidence is stored in **Amazon S3**.
 
-Responsibilities
-
-- Central Entry Point
-- Request Routing
-- JWT Validation
-- Authentication
-- Authorization
-- Global Filters
-- Rate Limiting (Future)
-
----
-
-## 📌 Registry Service
-
-Responsibilities
-
-- Eureka Server
-- Service Registration
-- Service Discovery
-- Health Monitoring
-
----
-
-## 📌 Config Server
-
-Responsibilities
-
-- Centralized Configuration
-- Environment Management
-- Remote Configuration
-- Configuration Refresh
-
----
-
-## 📌 Monitoring Service
-
-Responsibilities
-
-- Uptime Checks
-- Website Monitoring
-- API Monitoring
-- Response Time Analysis
-- Service Health Tracking
-- Alert Generation
-- Monitoring Reports
-
----
-
-## 📌 Common Module
-
-Contains
-
-- Shared DTOs
-- Utility Classes
-- Common Exceptions
-- Constants
-- Security Utilities
-- Shared Configurations
-
----
-
-# 🔐 Authentication Flow
+### Supported image formats
 
 ```text
-User
-
-   │
-
-   ▼
-
-Login Request
-
-   │
-
-   ▼
-
-OAuth2 Authentication
-
-   │
-
-   ▼
-
-Generate JWT Token
-
-   │
-
-   ▼
-
-Client Stores Token
-
-   │
-
-   ▼
-
-Authorization Header
-
-Bearer <JWT Token>
-
-   │
-
-   ▼
-
-API Gateway validates Token
-
-   │
-
-   ▼
-
-Forward Request to Microservice
+PNG
+JPEG
+WEBP
+GIF
 ```
 
----
-
-# 🚀 Getting Started
-
-## Clone Repository
-
-```bash
-git clone https://github.com/yourusername/uptime-monitoring-system.git
-
-cd uptime-monitoring-system
-```
-
----
-
-## Build Project
-
-```bash
-mvn clean install
-```
-
----
-
-## Run Config Server
-
-```bash
-cd config-server
-
-mvn spring-boot:run
-```
-
----
-
-## Run Eureka Server
-
-```bash
-cd registry-service
-
-mvn spring-boot:run
-```
-
----
-
-## Run Monitoring Service
-
-```bash
-cd monitoring-service
-
-mvn spring-boot:run
-```
-
----
-
-## Run API Gateway
-
-```bash
-cd api-gateway
-
-mvn spring-boot:run
-```
-
----
-
-# 🐳 Docker Deployment
-
-Build Containers
-
-```bash
-docker-compose build
-```
-
-Start Containers
-
-```bash
-docker-compose up -d
-```
-
-Stop Containers
-
-```bash
-docker-compose down
-```
-
----
-
-# 📖 API Documentation
-
-Swagger documentation is available for each microservice.
-
-```
-http://localhost:<PORT>/swagger-ui/index.html
-```
-
-Example
-
-```
-http://localhost:8080/swagger-ui/index.html
-```
-
----
-
-# 📈 Monitoring
-
-The application supports monitoring through Spring Boot Actuator.
-
-Example Endpoints
-
-```
-/actuator/health
-
-/actuator/info
-
-/actuator/metrics
-
-/actuator/prometheus
-```
-
----
-
-# 🔄 Request Flow
+### Maximum file size
 
 ```text
-Client
-
-   │
-
-API Gateway
-
-   │
-
-JWT Authentication
-
-   │
-
-Service Discovery (Eureka)
-
-   │
-
-Monitoring Service
-
-   │
-
-Database
-
-   │
-
-Response
-
-   │
-
-Client
+10 MB
 ```
 
----
+Uploaded files use partitioned S3 keys:
 
-# 🔒 Security Features
-
-- OAuth2 Authentication
-- JWT Authorization
-- Spring Security
-- Secure REST APIs
-- Password Encryption
-- Token Validation
-- Stateless Authentication
-- CORS Configuration
-
----
-
-# 🌟 Future Enhancements
-
-- Email Notifications
-- SMS Alerts
-- Slack Integration
-- Discord Notifications
-- Prometheus Integration
-- Grafana Dashboard
-- Kubernetes Deployment
-- RabbitMQ/Kafka Event Streaming
-- Distributed Tracing
-- OpenTelemetry
-- Circuit Breaker (Resilience4j)
-- Rate Limiting
-- Audit Logging
-- Multi-Tenant Support
-
----
-
-# 🤝 Contributing
-
-Contributions are welcome!
-
-1. Fork the repository
-
-2. Create a feature branch
-
-```bash
-git checkout -b feature/new-feature
+```text
+issues/{userEmail}/{uuid}_{filename}
 ```
 
-3. Commit your changes
+Example:
 
-```bash
-git commit -m "Add new feature"
+```text
+issues/user@example.com/
+a7c9d123_screenshot.png
 ```
 
-4. Push your branch
+This prevents filename collisions and keeps uploaded evidence organized by user.
 
-```bash
-git push origin feature/new-feature
+---
+
+# ⚡ AWS Lambda Integration
+
+The monitoring backend integrates with an AWS Lambda function for serverless issue-proof processing.
+
+When an issue is created, the backend sends an event containing information such as:
+
+```json
+{
+  "issueId": 123,
+  "s3Bucket": "uptime-sentinel",
+  "s3Key": "issues/user@example.com/abc123_screenshot.png",
+  "screenshotUrl": "...",
+  "category": "DOWNTIME",
+  "priority": "HIGH",
+  "userEmail": "user@example.com"
+}
 ```
 
-5. Create a Pull Request
+The Lambda function processes the issue proof and performs validation/priority-related processing.
+
+The backend records:
+
+- Lambda execution status
+- Lambda function ARN
+- Processing result
+- Associated issue information
 
 ---
 
-# 📄 License
+# 🛠️ AWS Integration Components
 
-This project is licensed under the **MIT License**.
+### `AwsConfig.java`
+
+Provides AWS client configuration for:
+
+- Amazon S3
+- AWS Lambda
+
+The configuration also performs credential validation and supports local development environments.
+
+### `AwsS3Service.java`
+
+Responsible for:
+
+- Image validation
+- File-size validation
+- S3 uploads
+- S3 object deletion
+- S3 key generation
+- Local development fallback
+
+### `AwsLambdaService.java`
+
+Responsible for:
+
+- Building Lambda event payloads
+- Invoking Lambda
+- Tracking execution status
+- Recording Lambda ARN
+- Local development fallback
 
 ---
 
-# 👨‍💻 Author
+# ⚙️ Local Development Fallback
 
-**Your Name**
+The AWS integration supports development environments where AWS credentials are unavailable.
 
-- GitHub: https://github.com/jhachhotu
-- LinkedIn: https://www.linkedin.com/in/kumarchhotu/
+When AWS credentials are not configured, the backend can use a local simulation/fallback mechanism instead of failing immediately.
+
+This allows developers to work on the monitoring and issue-reporting functionality without requiring AWS access for every local run.
+
+> AWS credentials and production configuration should be used when deploying the application to AWS.
 
 ---
 
-## ⭐ If you found this project useful, don't forget to star the repository!
+# 🧩 Issue Reporting APIs
+
+## Create Issue
+
+```http
+POST /api/monitoring/issues
+```
+
+Multipart form data:
+
+```text
+title
+description
+category
+priority
+websiteId
+proof
+```
+
+The endpoint:
+
+1. Validates the request
+2. Validates the proof image
+3. Uploads the image to S3
+4. Creates the issue record
+5. Invokes AWS Lambda
+6. Stores Lambda execution information
+
+---
+
+## Get User Issues
+
+```http
+GET /api/monitoring/issues
+```
+
+Returns issues associated with the authenticated user.
+
+---
+
+## Get Issue Details
+
+```http
+GET /api/monitoring/issues/{id}
+```
+
+Returns detailed information about a specific issue.
+
+---
+
+## Update Issue Status
+
+```http
+PATCH /api/monitoring/issues/{id}/status
+```
+
+Used to update the issue lifecycle/status.
+
+---
+
+## Delete Issue
+
+```http
+DELETE /api/monitoring/issues/{id}
+```
+
+Deletes the issue and
