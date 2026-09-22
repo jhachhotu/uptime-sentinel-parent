@@ -7,4 +7,4 @@ FROM eclipse-temurin:21-jre-jammy
 WORKDIR /app
 COPY --from=build /app/monitoring-service/target/*.jar app.jar
 
-ENTRYPOINT ["sh", "-c", "java -Xmx300m -Dserver.port=$PORT -jar app.jar"]
+ENTRYPOINT ["sh", "-c", "java -Xmx300m -Dserver.port=${PORT:-8080} -jar app.jar"]
