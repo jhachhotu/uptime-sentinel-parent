@@ -47,6 +47,7 @@ public class SecurityConfig {
                         .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/monitoring/auth/**").permitAll()
                         .requestMatchers("/api/monitoring/status").permitAll()
+                        .requestMatchers("/api/monitoring/payment/webhook").permitAll()
                         .requestMatchers("/actuator/**").permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
