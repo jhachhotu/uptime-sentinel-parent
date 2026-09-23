@@ -1,0 +1,33 @@
+server:
+  port: ${PORT:8081}
+
+spring:
+  application:
+    name: monitoring-service
+  config:
+    import: configserver:${CONFIG_SERVER_URL:http://localhost:8888}
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${SMTP_USERNAME:dummy}
+    password: ${SMTP_PASSWORD:dummy}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+stripe:
+  api:
+    key: ${STRIPE_API_KEY:}
+  webhook:
+    secret: ${STRIPE_WEBHOOK_SECRET:}
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URL:http://localhost:8761/eureka/}
+  instance:
+    prefer-ip-address: false
+    hostname: ${RENDER_EXTERNAL_HOSTNAME:localhost}

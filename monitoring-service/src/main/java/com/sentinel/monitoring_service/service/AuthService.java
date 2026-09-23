@@ -17,6 +17,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.Optional;
@@ -30,9 +31,10 @@ public class AuthService {
     private final JwtUtil jwtUtil;
     private final AuthenticationManager authenticationManager;
 
-    @Value("${google.client-id}")
+    @Value("${google.client-id:dummyClientId}")
     private String googleClientId;
 
+    @Transactional
     public AuthResponse register(RegisterRequest request) {
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
             throw new RuntimeException("Email already exists");
@@ -54,12 +56,22 @@ public class AuthService {
     }
 
     public AuthResponse authenticate(AuthRequest request) {
+        // Check if the user exists and is a Google-only account
+        Optional<User> userOpt = userRepository.findByEmail(request.getEmail());
+        if (userOpt.isPresent()) {
+            User existingUser = userOpt.get();
+            if ("GOOGLE".equals(existingUser.getProvider()) && existingUser.getPassword() == null) {
+                throw new RuntimeException(
+                        "This account was created with Google Sign-In. Please use 'Continue with Google' to log in.");
+            }
+        }
+
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getEmail(),
                         request.getPassword()));
 
-        User user = userRepository.findByEmail(request.getEmail())
+        User user = userOpt
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         String jwtToken = jwtUtil.generateToken(user.getEmail());
@@ -70,6 +82,7 @@ public class AuthService {
                 .build();
     }
 
+    @Transactional
     public AuthResponse googleLogin(GoogleLoginRequest request) {
         try {
             GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(),
@@ -88,7 +101,10 @@ public class AuthService {
 
                 if (userOptional.isPresent()) {
                     user = userOptional.get();
-                    // If user was originally LOCAL, update or proceed. For now, just allow login.
+                    // If user was originally LOCAL, update provider info for linking
+                    if ("LOCAL".equals(user.getProvider()) && user.getProviderId() == null) {
+                        user.setProviderId(subjectId);
+                    }
                 } else {
                     user = User.builder()
                             .email(email)

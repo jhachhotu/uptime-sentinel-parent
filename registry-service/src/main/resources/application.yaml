@@ -1,9 +1,5 @@
-server:
-  port: 8761
-
-eureka:
-  client:
-    register-with-eureka: false # The server shouldn't register with itself
-    fetch-registry: false
-    service-url:
-      defaultZone: http://localhost:8761/eureka/
+spring:
+  application:
+    name: sentinel-registry
+  config:
+    import: optional:configserver:https://sentinel-config.onrender.com

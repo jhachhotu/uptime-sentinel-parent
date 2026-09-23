@@ -34,19 +34,43 @@ public class MonitoringController {
     @Autowired
     private EmailService emailService;
 
-    // ─── Add a new website to monitor (stamps with owner ID) ───
+    @Autowired
+    private com.sentinel.monitoring_service.repository.UserRepository userRepository;
+
+    // ─── Add a new website to monitor (stamps with owner ID & enforces subscription quota) ───
     @PostMapping("/add")
-    public ResponseEntity<Website> addWebsite(@RequestBody Website website,
+    public ResponseEntity<?> addWebsite(@RequestBody Website website,
             @AuthenticationPrincipal UserDetails userDetails) {
         String userEmail = userDetails.getUsername();
+
+        // 1. Enforce Subscription Tier Quota
+        com.sentinel.monitoring_service.entity.User user = userRepository.findByEmail(userEmail).orElse(null);
+        com.sentinel.monitoring_service.entity.SubscriptionTier tier =
+                (user != null && user.getSubscriptionTier() != null)
+                        ? user.getSubscriptionTier()
+                        : com.sentinel.monitoring_service.entity.SubscriptionTier.STARTER;
+
+        long currentCount = repository.findByOwnerId(userEmail).size();
+        if (currentCount >= tier.getMaxMonitors()) {
+            return ResponseEntity.status(org.springframework.http.HttpStatus.FORBIDDEN).body(Map.of(
+                    "error", "Monitor limit reached (" + currentCount + "/" + tier.getMaxMonitors() + ") for your " + tier.getDisplayName() + " plan. Please upgrade your subscription to add more monitors.",
+                    "currentCount", currentCount,
+                    "maxAllowed", tier.getMaxMonitors(),
+                    "tier", tier.name()
+            ));
+        }
+
+        // 2. Validate and enforce check interval limits
+        if (website.getCheckInterval() <= 0) {
+            website.setCheckInterval(tier.getMinIntervalSeconds());
+        } else if (website.getCheckInterval() < tier.getMinIntervalSeconds()) {
+            website.setCheckInterval(tier.getMinIntervalSeconds());
+        }
 
         website.setStatus("UNKNOWN");
         website.setLastStatus("UNKNOWN");
         website.setOwnerId(userEmail); // Using email as the primary owner identifier
         website.setOwnerEmail(userEmail);
-        if (website.getCheckInterval() == 0) {
-            website.setCheckInterval(5);
-        }
 
         // Auto-assign any orphaned monitors (no ownerId) to this user on first add
         List<Website> orphans = repository.findOrphanedWebsites();

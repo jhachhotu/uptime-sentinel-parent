@@ -11,13 +11,19 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    @org.springframework.beans.factory.annotation.Value("${FRONTEND_URL:http://localhost:5173}")
+    @org.springframework.beans.factory.annotation.Value("${FRONTEND_URL:https://client-uptime-frontend.vercel.app}")
     private String frontendUrl;
 
     private final JwtAuthenticationFilter jwtAuthFilter;
@@ -27,10 +33,21 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
+                // 1. Point to the CORS configuration defined below
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+
+                // 2. CRITICAL: Fix the COOP issue for Google Auth popup communication
+                .headers(headers -> headers
+                        .crossOriginOpenerPolicy(coop -> coop
+                                .policy(org.springframework.security.web.header.writers.CrossOriginOpenerPolicyHeaderWriter.CrossOriginOpenerPolicy.SAME_ORIGIN_ALLOW_POPUPS)
+                        )
+                )
+
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/monitoring/auth/**").permitAll()
                         .requestMatchers("/api/monitoring/status").permitAll()
+                        .requestMatchers("/api/monitoring/payment/webhook").permitAll()
                         .requestMatchers("/actuator/**").permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -40,5 +57,29 @@ public class SecurityConfig {
         return http.build();
     }
 
-    // CORS is handled entirely by the API Gateway
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+
+        // Exact origins
+        configuration.setAllowedOrigins(Arrays.asList(
+                frontendUrl,
+                "http://localhost:5173",
+                "http://localhost:8082",
+                "https://client-uptime-frontend.vercel.app"
+        ));
+
+        // Also allow all Vercel preview deployments via pattern
+        configuration.setAllowedOriginPatterns(Arrays.asList(
+                "https://*.vercel.app"
+        ));
+
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept", "X-Requested-With"));
+        configuration.setAllowCredentials(true); // Required for OAuth2/Cookies
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
 }
