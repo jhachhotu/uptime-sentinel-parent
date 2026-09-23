@@ -1,18 +1,5 @@
-server:
-  address: 0.0.0.0
-  port: ${PORT:8761}
-
 spring:
   application:
     name: sentinel-registry
-
-eureka:
-  instance:
-    hostname: sentinel-registry.onrender.com
-  server:
-    enable-self-preservation: false
-  client:
-    register-with-eureka: false
-    fetch-registry: false
-    service-url:
-      defaultZone: https://${eureka.instance.hostname}/eureka/
+  config:
+    import: optional:configserver:https://sentinel-config.onrender.com
